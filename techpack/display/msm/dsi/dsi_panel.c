@@ -1002,8 +1002,6 @@ int dsi_panel_set_backlight(struct dsi_panel *panel, u32 bl_lvl)
 		DSI_ERR("Backlight type(%d) not supported\n", bl->type);
 		rc = -ENOTSUPP;
 	}
-	
-	bl->real_bl_level = bl_lvl;
 
 	return rc;
 }
@@ -2899,12 +2897,14 @@ static int dsi_panel_parse_misc_features(struct dsi_panel *panel)
 	int i, rc = 0;
 	u32 val = 0;
 
-	panel->ulps_feature_enabled = true;
+	panel->ulps_feature_enabled =
+		utils->read_bool(utils->data, "qcom,ulps-enabled");
 
 	DSI_DEBUG("%s: ulps feature %s\n", __func__,
 		(panel->ulps_feature_enabled ? "enabled" : "disabled"));
 
-	panel->ulps_suspend_enabled = true;
+	panel->ulps_suspend_enabled =
+		utils->read_bool(utils->data, "qcom,suspend-ulps-enabled");
 
 	DSI_DEBUG("%s: ulps during suspend feature %s\n", __func__,
 		(panel->ulps_suspend_enabled ? "enabled" : "disabled"));
@@ -3280,7 +3280,6 @@ static int dsi_panel_parse_bl_config(struct dsi_panel *panel)
 
 	panel->bl_config.bl_scale = MAX_BL_SCALE_LEVEL;
 	panel->bl_config.bl_scale_sv = MAX_SV_BL_SCALE_LEVEL;
-	panel->bl_config.real_bl_level = 0;
 
 	rc = utils->read_u32(utils->data, "qcom,mdss-dsi-bl-min-level", &val);
 	if (rc) {
